@@ -97,20 +97,7 @@ namespace WinSvcTaskTimer
 
             return CreateFromConfiguration(appSettingsResolver);
         }
-
-        /// <summary>
-        /// Creates from custom appSettings.
-        /// </summary>
-        /// <param name="appSettings">The app settings.</param>
-        /// <returns>the configuration</returns>
-        public static LocalServiceInstallerConfiguration CreateFromConfiguration(NameValueCollection appSettings)
-        {
-            var prefix = "ServiceInstaller/";
-            var appSettingsResolver = new Func<string, string>(key => appSettings[prefix + key]);
-
-            return CreateFromConfiguration(appSettingsResolver);
-        }
-
+        
         /// <summary>
         /// Creates from specified configuration (uses appSettings).
         /// </summary>
@@ -118,9 +105,13 @@ namespace WinSvcTaskTimer
         /// <returns>the configuration</returns>
         public static LocalServiceInstallerConfiguration CreateFromConfiguration(System.Configuration.Configuration config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException("config");
+            }
+
             var prefix = "ServiceInstaller/";
-            var appSettingsResolver = new Func<string, string>(
-                key => config.AppSettings.Settings[prefix + key].Value);
+            var appSettingsResolver = new Func<string, string>(key => GetAppSettingsKey(config.AppSettings, prefix + key));
 
             return CreateFromConfiguration(appSettingsResolver);
         }
@@ -180,6 +171,19 @@ namespace WinSvcTaskTimer
             cfg.Description = appSettings("Description");
 
             return cfg;
+        }
+
+        private static string GetAppSettingsKey(AppSettingsSection section, string key)
+        {
+            if (section != null && section.Settings != null)
+            {
+                var entry = section.Settings[key];
+                return entry != null ? entry.Value : null;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

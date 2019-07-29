@@ -59,8 +59,8 @@ namespace WinSvcTaskTimer
             Trace.WriteLine("ServiceWrapper: OnStart at " + DateTime.UtcNow.ToString());
             Trace.WriteLine("ServiceWrapper: Environment.CurrentDirectory: " + Environment.CurrentDirectory);
             Trace.WriteLine("ServiceWrapper: Environment.CommandLine:      " + Environment.CommandLine);
-            Trace.WriteLine("ServiceWrapper: args:                         " + string.Join(" ", args));
-            Trace.WriteLine("ServiceWrapper: will use:                     " + Path.GetDirectoryName(Environment.CommandLine.Trim('"')));
+            Trace.WriteLine("ServiceWrapper: args:                         " + (args != null ? string.Join(" ", args) : "NULL"));
+            Trace.WriteLine("ServiceWrapper: will use:                     " + (Environment.CommandLine != null ? Path.GetDirectoryName(Environment.CommandLine.Trim('"')) : "NULL"));
             Trace.Flush();
 
             base.OnStart(args);

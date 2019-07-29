@@ -18,19 +18,29 @@ namespace WinSvcTaskTimer
         public LocalServiceInstaller()
         {
             var config = ConfigurationManager.OpenExeConfiguration(typeof(LocalServiceInstaller).Assembly.CodeBase.Replace("file:///", string.Empty));
+            if (config == null)
+            {
+                throw new InvalidOperationException("Configuration file is missing. ");
+            }
+
             var conf = LocalServiceInstallerConfiguration.CreateFromConfiguration(config);
+            if (conf == null)
+            {
+                throw new InvalidOperationException("Configuration entries are missing. ");
+            }
 
             // configure ServiceProcessInstaller
             this.processInstaller = new ServiceProcessInstaller()
             {
                 Account = conf.ServiceAccount,
             };
-            this.Installers.Add(this.processInstaller);
             if (conf.ServiceAccount == ServiceAccount.User)
             {
                 this.processInstaller.Username = conf.Username;
                 this.processInstaller.Password = conf.Password;
             }
+
+            this.Installers.Add(this.processInstaller);
 
             // configure ServiceInstaller
             this.serviceInstaller = new ServiceInstaller()
