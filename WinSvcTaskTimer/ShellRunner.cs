@@ -11,9 +11,22 @@ namespace WinSvcTaskTimer
 
     public class ShellRunner : IRun
     {
+        private ShellStart start;
+        private Process process;
+
+        public bool HasStarted { get; set; }
+
+        public bool HasExited
+        {
+            get
+            {
+                return !this.HasStarted || this.process.HasExited;
+            }
+        }
+
         public void Run(string argument)
         {
-            var start = ShellStart.Create(argument);
+            this.start = ShellStart.Create(argument);
             var workDir = start.Directory ?? Environment.CurrentDirectory;
             /*
             var logDir = Path.Combine(workDir, "Logs");
@@ -33,11 +46,15 @@ namespace WinSvcTaskTimer
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
-            var process = Process.Start(startInfo);
+            this.process = Process.Start(startInfo);
+            this.HasStarted = true;
+            Trace.WriteLine("ShellRunner: process " + this.process.Id + " has started");
             var outputReader = process.StandardOutput;
             var errorReader = process.StandardError;
 
-            process.WaitForExit();
+            this.process.Exited += Process_Exited;
+
+            ////process.WaitForExit();
 
             /*
             using(var logStream = File.Open(logFile, FileMode.Append, FileAccess.Write, FileShare.Read))
@@ -64,9 +81,22 @@ namespace WinSvcTaskTimer
                 logWriter.WriteLine(errorReader.ReadToEnd());
             }
             */
-            if (process.ExitCode != start.ExpectedCode)
+        }
+
+        private void Process_Exited(object sender, EventArgs e)
+        {
+            Trace.WriteLine("ShellRunner: process " + this.process.Id + " has exited");
+            if (process.ExitCode != this.start.ExpectedCode)
             {
-                throw new InvalidOperationException("Process failed with exit code " + process.ExitCode + " (expected " + start.ExpectedCode + ")");
+                Trace.WriteLine("ShellRunner: process " + this.process.Id + " has exited with exit code " + process.ExitCode + " (expected " + this.start.ExpectedCode + ")");
+            }
+        }
+
+        public void Abort()
+        {
+            if (this.process != null)
+            {
+                this.process.Kill();
             }
         }
 

@@ -96,29 +96,17 @@ namespace WinSvcTaskTimer.Core
                     // kill tasks
                     foreach (var task in tasks)
                     {
-                        switch (task.Task.Status)
+                        if (task.IsRunning)
                         {
-                            case TaskStatus.Running:
-                            case TaskStatus.WaitingForChildrenToComplete:
-                                Trace.WriteLine("TaskTimer " + this.name + " is waiting for task " + task.Task.Id + " before stopping");
-                                task.Abort();
-                                break;
+                            Trace.WriteLine("TaskTimer " + this.name + " is waiting for task " + task + " before stopping");
+                            task.Abort();
                         }
                     }
 
                     // wait tasks
                     foreach (var task in tasks)
                     {
-                        switch (task.Task.Status)
-                        {
-                            case TaskStatus.Running:
-                            case TaskStatus.WaitingForChildrenToComplete:
-
-                                Trace.WriteLine("TaskTimer " + this.name + " is waiting for task " + task.Task.Id + " before stopping");
-                                task.Abort();
-                                task.Task.Wait();
-                                break;
-                        }
+                        task.Wait();
                     }
                 }
 
@@ -142,11 +130,11 @@ namespace WinSvcTaskTimer.Core
             }
             else if (this.tickBehavior == TimerTickBehavior.WaitNextTick)
             {
-                if (this.tasks.All(t => t.Task.IsCompleted))
+                if (this.tasks.All(t => t.HasCompleted))
                 {
                     task = this.CreateTask();
                     this.tasks.Add(task);
-                    task.Task.Start();
+                    task.Run();
                 }
                 else
                 {
@@ -160,47 +148,8 @@ namespace WinSvcTaskTimer.Core
 
         private TaskItem CreateTask()
         {
-            return new TaskItem(() =>
-            {
-                Trace.WriteLine("TaskTimer " + this.name + " tick at " + DateTime.Now.ToString("u"));
-                var watch = new Stopwatch();
-                watch.Start();
-                Action action = this.builder.Create();
-
-                try
-                {
-                    action();
-                    Trace.WriteLine("TaskTimer " + this.name + " finished task at " + DateTime.Now.ToString("u") + " (duration: " + watch.Elapsed.ToString("g") + ")");
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("TaskTimer " + this.name + " finished task at " + DateTime.Now.ToString("u") + " (duration: " + watch.Elapsed.ToString("g") + ") with exception:" + Environment.NewLine + ex.ToString());
-                }
-
-                this.StartNextTask();
-            });
-
-            var cancel = new CancellationTokenSource();
-            var task = new Task(() =>
-            {
-                Trace.WriteLine("TaskTimer " + this.name + " tick at " + DateTime.Now.ToString("u"));
-                var watch = new Stopwatch();
-                watch.Start();
-                Action action = this.builder.Create();
-
-                try
-                {
-                    action();
-                    Trace.WriteLine("TaskTimer " + this.name + " finished task at " + DateTime.Now.ToString("u") + " (duration: " + watch.Elapsed.ToString("g") + ")");
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("TaskTimer " + this.name + " finished task at " + DateTime.Now.ToString("u") + " (duration: " + watch.Elapsed.ToString("g") + ") with exception:" + Environment.NewLine + ex.ToString());
-                }
-
-                this.StartNextTask();
-            }, cancel.Token);
-            return new TaskItem(task, cancel);
+            var item = this.builder.Create();
+            return item;
         }
 
         /// <summary>
@@ -219,40 +168,6 @@ namespace WinSvcTaskTimer.Core
             }
 
             return null;
-        }
-
-        public class TaskItem
-        {
-            private Task task;
-            private CancellationTokenSource cancel;
-            private Action action;
-
-            public TaskItem(Action action)
-            {
-                this.cancel = new CancellationTokenSource();
-                this.task = new Task(action);
-            }
-
-            private void Run()
-            {
-                throw new NotImplementedException();
-            }
-
-            public TaskItem(Task task, CancellationTokenSource cancel)
-            {
-                this.task = task;
-                this.cancel = cancel;
-            }
-
-            public Task Task
-            {
-                get { return this.task; }
-            }
-
-            public void Abort()
-            {
-                this.cancel.Cancel();
-            }
         }
     }
 }

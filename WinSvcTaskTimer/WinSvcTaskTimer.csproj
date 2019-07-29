@@ -48,6 +48,7 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="ConsoleTraceListener.cs" />
     <Compile Include="Core\TaskBuilder.cs" />
+    <Compile Include="Core\TaskItem.cs" />
     <Compile Include="Core\TaskTimer.cs" />
     <Compile Include="Core\TimerTickBehavior.cs" />
     <Compile Include="IRun.cs" />

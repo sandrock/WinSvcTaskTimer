@@ -8,6 +8,7 @@ namespace WinSvcTaskTimer
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.ServiceProcess;
     using System.Threading;
     using System.Threading.Tasks;
@@ -90,14 +91,15 @@ namespace WinSvcTaskTimer
 
         private void DoStart()
         {
-            var workDir = Path.GetDirectoryName(Environment.CommandLine.Trim('"'));
+            var workDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             if (!Directory.Exists(workDir))
             {
                 throw new InvalidOperationException("Work directory cannot be defined to '" + workDir + "': directory does not exist");
             }
 
+            Trace.WriteLine("ServiceWrapper: Work directory was    '" + Environment.CurrentDirectory + "'");
             Environment.CurrentDirectory = workDir;
-            Trace.WriteLine("ServiceWrapper: Work directory set to '" + workDir + "'");
+            Trace.WriteLine("ServiceWrapper: Work directory set to '" + Environment.CurrentDirectory + "'");
 
             var config = ConfigurationManager.GetSection("TaskHost") as TaskHostSection;
             if (config == null)

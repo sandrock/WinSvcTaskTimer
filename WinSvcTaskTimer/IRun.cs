@@ -9,6 +9,12 @@ namespace WinSvcTaskTimer
     /// </summary>
     public interface IRun
     {
+        bool HasStarted { get; }
+
+        bool HasExited { get; }
+
         void Run(string argument);
+
+        void Abort();
     }
 }

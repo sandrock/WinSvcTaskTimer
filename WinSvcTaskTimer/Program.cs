@@ -16,11 +16,10 @@ namespace WinSvcTaskTimer
             if (Environment.UserInteractive)
             {
                 Trace.Listeners.Add(new ConsoleTraceListener());
-                Console.Write("Running service... ");
+                Console.WriteLine("Running service... ");
                 try
                 {
                     wrapper.Start();
-                    Console.WriteLine("ok.");
                 }
                 catch (Exception ex)
                 {

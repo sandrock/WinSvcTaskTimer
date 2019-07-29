@@ -14,7 +14,7 @@ namespace WinSvcTaskTimer
         private static readonly object IdLock = new object();
         private static int idCounter = 0;
         private int id = NextId();
-
+        
         public void Run(string argument)
         {
             var time = Random.Next(5, 60);

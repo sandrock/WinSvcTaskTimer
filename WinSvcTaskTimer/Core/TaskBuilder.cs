@@ -15,7 +15,7 @@ namespace WinSvcTaskTimer.Core
         private string name;
         private string type;
         private string argument;
-        private string method;
+        private string methodName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TaskBuilder"/> class.
@@ -29,7 +29,7 @@ namespace WinSvcTaskTimer.Core
             this.name = name;
             this.type = type;
             this.argument = argument;
-            this.method = method;
+            this.methodName = method;
         }
 
         public string Name
@@ -41,19 +41,7 @@ namespace WinSvcTaskTimer.Core
         /// Creates a runnable delegate.
         /// </summary>
         /// <returns>the run method</returns>
-        public Action Create()
-        {
-            return this.Run;
-        }
-
-        /// <summary>
-        /// Verifies this instance.
-        /// </summary>
-        public void Verify()
-        {
-        }
-
-        private void Run()
+        public TaskItem Create()
         {
             // find type
             Type type;
@@ -64,7 +52,7 @@ namespace WinSvcTaskTimer.Core
             catch (Exception ex)
             {
                 Trace.WriteLine("TaskBuilder " + this.name + " failed to create Type '" + this.type + "'." + Environment.NewLine + ex.ToString());
-                return;
+                return TaskItem.CreateError(ex);
             }
 
             // create object
@@ -76,45 +64,50 @@ namespace WinSvcTaskTimer.Core
             catch (Exception ex)
             {
                 Trace.WriteLine("TaskBuilder " + this.name + " failed to create instance of type '" + this.type + "'." + Environment.NewLine + ex.ToString());
-                return;
+                return TaskItem.CreateError(ex);
             }
 
             // find method
             Action<string> runAction;
+            Action abortAction = null;
             if (obj is IRun)
             {
                 runAction = arg => ((IRun)obj).Run(arg);
+                abortAction = () => ((IRun)obj).Abort();
             }
             else
             {
                 MethodInfo method;
                 try
                 {
-                    method = type.GetMethod(this.method, new Type[] { typeof(string), });
+                    method = type.GetMethod(this.methodName, new Type[] { typeof(string), });
                     if (method != null)
                     {
                         runAction = arg => method.Invoke(obj, new object[] { arg, });
                     }
                     else
                     {
-                        method = type.GetMethod(this.method, new Type[] { });
+                        method = type.GetMethod(this.methodName, new Type[] { });
                         if (method != null)
                         {
                             runAction = arg => method.Invoke(obj, new object[] { });
                         }
                         else
                         {
-                            Trace.WriteLine("TaskBuilder " + this.name + " found no method '" + this.method + "' on type '" + this.type + "'.");
-                            return;
+                            Trace.WriteLine("TaskBuilder " + this.name + " found no method '" + this.methodName + "' on type '" + this.type + "'.");
+                            return TaskItem.CreateError(new InvalidOperationException("Object does not implement the run method"));
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("TaskBuilder " + this.name + " found no method '" + this.method + "' on type '" + this.type + "'." + Environment.NewLine + ex.ToString());
-                    return;
+                    Trace.WriteLine("TaskBuilder " + this.name + " found no method '" + this.methodName + "' on type '" + this.type + "'." + Environment.NewLine + ex.ToString());
+                    return TaskItem.CreateError(ex);
                 }
             }
+
+            var item = new TaskItem((IRun)obj, () => runAction(this.argument), abortAction);
+            return item;
 
             // run method
             try
