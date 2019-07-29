@@ -3,11 +3,12 @@
 
 Simple Windows Service app to run apps on timers.
 
+
 ## How to use
 
 ### Configure tasks and timers
 
-Open the config file. Add one or many tasks.
+Open the config file. Add one or many tasks. More details below. 
 
 ```
 <TaskHost>
@@ -19,6 +20,7 @@ Open the config file. Add one or many tasks.
   </Timers>
 </TaskHost>
 ```
+
 
 ### Test the runtime
 
@@ -32,7 +34,8 @@ You should see the service start and your task should execute.
 
 Hit 'Q' to verify the tasks stop.
 
-### Prepare a use account for the service
+
+### Prepare a user account for the service
 
 Windows Services run under a user account. You can create one with the following command. Please change the sample username and password. 
 
@@ -40,9 +43,10 @@ Windows Services run under a user account. You can create one with the following
 > net user /add MyServices key=gseVEtNAs88UKbqK
 ```
 
+
 ### Configure the service
 
-In the config file, specify the ServiceInstaller things.
+In the config file, specify the ServiceInstaller things. More details below. 
 
 ```
 <add key="ServiceInstaller/ServiceName" value="SuperService" />
@@ -55,6 +59,7 @@ In the config file, specify the ServiceInstaller things.
 <add key="ServiceInstaller/StartType" value="Automatic" />
 ```
 
+
 ### Install as a service
 
 These commands will install the service, start it and stop it.
@@ -65,19 +70,25 @@ These commands will install the service, start it and stop it.
 > net stop  SuperService
 ```
 
+You may now **remove the password from the configuration file**.
+
+
 ## Advanced configuration
 
 ### ServiceInstaller configuration options
 
 TODO
 
+
 ### Task options
 
 TODO
 
+
 ### Timer options
 
 TODO
+
 
 # Code and contribute
 
@@ -91,8 +102,15 @@ TODO
 - [ ] More options to kill running tasks on service stop
 - [ ] Runner modularity: allow loading an assembly to define custom tasks
 
+
 ## Contribute
 
-- code must pass most StyleCop  rules
+- Contribute by use
+    - report any problem (create an issue)
+    - suggest new features (create an issue)
+    - before creating an issue: search for an existing issue and read the documentation
+- Contribute by code
+    - code must pass most StyleCop rules
+    - make a [pull request](https://help.github.com/en/articles/about-pull-requests) explaining your changes
 
 
