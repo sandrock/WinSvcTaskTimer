@@ -10,22 +10,12 @@ namespace WinSvcTaskTimer.Core
 
     public class TaskItem
     {
-        private Task task;
-        private CancellationTokenSource cancel;
-        private IRun runner;
+        private readonly IRun runner;
         private Action run;
-        private Action abort;
-
-        public TaskItem(Action action)
+        private readonly Action abort;
+        
+        private TaskItem()
         {
-            this.cancel = new CancellationTokenSource();
-            this.task = new Task(action);
-        }
-
-        public TaskItem(Task task, CancellationTokenSource cancel)
-        {
-            this.task = task;
-            this.cancel = cancel;
         }
 
         public TaskItem(IRun runner, Action run, Action abort)
@@ -34,21 +24,12 @@ namespace WinSvcTaskTimer.Core
             this.run = run;
             this.abort = abort;
         }
-
-        public Task Task
-        {
-            get { return this.task; }
-        }
-
+        
         public bool IsRunning
         {
             get
             {
-                if (this.task != null)
-                {
-                    return this.task.Status == TaskStatus.Running || this.task.Status == TaskStatus.WaitingForChildrenToComplete;
-                }
-                else if (this.runner != null)
+                if (this.runner != null)
                 {
                     return this.runner.HasStarted && !this.runner.HasExited;
                 }
@@ -59,15 +40,26 @@ namespace WinSvcTaskTimer.Core
             }
         }
 
+        public bool HasStarted
+        {
+            get
+            {
+                if (this.runner != null)
+                {
+                    return this.runner.HasStarted;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
         public bool HasCompleted
         {
             get
             {
-                if (this.task != null)
-                {
-                    return this.task.IsCompleted || this.task.IsCanceled;
-                }
-                else if (this.runner != null)
+                if (this.runner != null)
                 {
                     return this.runner.HasStarted && this.runner.HasExited;
                 }
@@ -92,11 +84,6 @@ namespace WinSvcTaskTimer.Core
 
         public void Abort()
         {
-            if (this.cancel != null)
-            {
-                this.cancel.Cancel(); 
-            }
-
             if (this.abort != null)
             {
                 this.abort();
@@ -116,7 +103,7 @@ namespace WinSvcTaskTimer.Core
 
         internal static TaskItem CreateError(Exception ex)
         {
-            var item = new TaskItem(null);
+            var item = new TaskItem();
             item.CreateException = ex;
             return item;
         }

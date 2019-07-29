@@ -121,7 +121,7 @@ namespace WinSvcTaskTimer.Core
             {
                 task = this.CreateTask();
                 this.tasks.Add(task);
-                task.Task.Start();
+                task.Run();
             }
             else if (this.tickBehavior == TimerTickBehavior.QueueExecution)
             {
@@ -160,9 +160,9 @@ namespace WinSvcTaskTimer.Core
         {
             foreach (var task in this.tasks)
             {
-                if (task.Task.Status == TaskStatus.Created)
+                if (!task.HasStarted)
                 {
-                    task.Task.Start();
+                    task.Run();
                     return task;
                 }
             }
