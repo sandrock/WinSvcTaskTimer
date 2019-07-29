@@ -49,14 +49,14 @@ Windows Services run under a user account. You can create one with the following
 In the config file, specify the ServiceInstaller things. More details below. 
 
 ```
-<add key="ServiceInstaller/ServiceName" value="SuperService" />
-<add key="ServiceInstaller/DisplayName" value="SuperService will do stuff and blah" />
-<add key="ServiceInstaller/ServiceAccount" value="User" />
-<add key="ServiceInstaller/Username" value=".\MyServices" />
-<add key="ServiceInstaller/Password" value="gseVEtNAs88UKbqK" />
-<add key="ServiceInstaller/ServicesDependedOn" value="" />
-<add key="ServiceInstaller/DelayedAutoStart" value="False" />
-<add key="ServiceInstaller/StartType" value="Automatic" />
+<add key="ServiceInstaller/ServiceName"        value="SuperService"     />
+<add key="ServiceInstaller/DisplayName"        value="SuperService will do stuff and blah" />
+<add key="ServiceInstaller/ServiceAccount"     value="User"             />
+<add key="ServiceInstaller/Username"           value=".\MyServices"     />
+<add key="ServiceInstaller/Password"           value="gseVEtNAs88UKbqK" />
+<add key="ServiceInstaller/ServicesDependedOn" value=""                 />
+<add key="ServiceInstaller/DelayedAutoStart"   value="False"            />
+<add key="ServiceInstaller/StartType"          value="Automatic"        />
 ```
 
 
