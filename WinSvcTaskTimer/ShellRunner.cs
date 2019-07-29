@@ -15,6 +15,7 @@ namespace WinSvcTaskTimer
         {
             var start = ShellStart.Create(argument);
             var workDir = start.Directory ?? Environment.CurrentDirectory;
+            /*
             var logDir = Path.Combine(workDir, "Logs");
             if (!Directory.Exists(logDir))
             {
@@ -23,7 +24,7 @@ namespace WinSvcTaskTimer
 
             var logFile = Path.Combine(logDir, "ShellRunner-" + DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss-fff") + ".log");
             var startDate = DateTime.UtcNow;
-
+            */
             var startInfo = new ProcessStartInfo(start.FileName, start.Arguments)
             {
                 WindowStyle = ProcessWindowStyle.Hidden,
