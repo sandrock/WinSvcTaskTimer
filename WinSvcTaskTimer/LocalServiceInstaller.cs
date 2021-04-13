@@ -49,7 +49,7 @@ namespace WinSvcTaskTimer
                 ServiceName = conf.ServiceName,
                 StartType = conf.StartType,
                 DelayedAutoStart = conf.DelayedAutoStart,
-                ServicesDependedOn = conf.ServicesDependedOn,
+                ServicesDependedOn = conf.ServicesDependedOn, // don't let it be null!
                 Description = conf.Description,
             };
             this.Installers.Add(this.serviceInstaller);

@@ -165,6 +165,10 @@ namespace WinSvcTaskTimer
                     .Where(e => !string.IsNullOrWhiteSpace(e))
                     .ToArray();
             }
+            else
+            {
+                cfg.ServicesDependedOn = new string[0];
+            }
 
             cfg.ServiceName = appSettings("ServiceName");
             cfg.DisplayName = appSettings("DisplayName");
